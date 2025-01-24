@@ -1,0 +1,197 @@
+Okay, let's define the core principles, assumptions, and how they'll guide my analysis, high-level plan, and pseudocode for replicating "In-Context Reinforcement Learning with Algorithm Distillation," while prioritizing interpretability, robustness, generalization, and ethical considerations:
+
+**Core Principles and Assumptions:**
+
+1.  **Interpretability:**
+    *   **Principle:** The process by which Algorithm Distillation (AD) enables in-context RL should be as transparent as possible. We aim to understand *how* the transformer attends to specific parts of the learning history and uses it to improve the policy, not just observe that it works.
+    *   **Assumption:** In-context learning is not a black box and should offer insight into how the model leverages past experiences to improve future behaviour.
+    *   **Implementation:**
+        *   We will analyze attention patterns of the transformer to understand which parts of the history are more important during prediction.
+        *   We will visualize how action probabilities change over time with respect to the context.
+        *   We will conduct ablation studies by removing certain tokens from the input, such as actions, rewards or observations, and observe how the model’s behavior changes.
+        *   We will analyze the gradient flow of the model during training to better understand the model's parameter importance and their sensitivity to different types of input data.
+
+2.  **Robustness:**
+    *   **Principle:** The AD model should be robust to variations in the learning histories, including noise in the source algorithm's behavior and different types of tasks.
+    *   **Assumption:** The real world has uncertainties and variations which the model must be able to overcome.
+    *   **Implementation:**
+        *   We will test AD by applying it to diverse and challenging tasks that involve exploration, planning, and partially observed data.
+        *    We will perform robustness tests with various perturbations in the training data, including corrupted input data.
+        *   We will analyze the sensitivity of different parameters of the architecture and the model’s sensitivity to hyperparameter changes.
+
+3.  **Generalization:**
+    *   **Principle:** The learned in-context RL should generalize to new tasks within the same or similar environments that were not seen during training. The model should learn the rules of reinforcement learning, and the distillation process of an RL algorithm rather than memorizing the specific tasks from the training data.
+    *   **Assumption:** In-context learning is not simply pattern-matching, but it enables the model to extrapolate the rules and processes of the algorithms.
+    *   **Implementation:**
+        *   We will evaluate on held-out tasks that were not used for source data generation.
+        *  We will evaluate the ability of the model to generalize to unseen tasks from the same distribution (e.g., more difficult variations of Dark Room).
+        *   We will evaluate the model’s ability to generalize to new distributions, such as a Watermaze with variations in object placement.
+
+4.  **Ethical Considerations:**
+    *   **Principle:** The model should be developed and deployed in an ethical manner, considering its potential societal impacts, while avoiding unethical data generation practices and making sure it is used for the benefit of humanity.
+    *   **Assumption:** The potential for misuse and bias amplification is a significant ethical concern with powerful AI techniques.
+    *   **Implementation:**
+        *   Carefully analyze the potential use cases and the ways the technology can be misused, particularly in real world scenarios.
+        *   We will ensure transparency in the data generation process, the model training, and any downstream evaluations.
+        *  We will ensure full transparency of the entire process through careful documentation.
+5.  **Efficiency:**
+    *   **Principle:** The model and method should be computationally efficient, such that it has potential to be useful without excessive overhead in resource usage.
+    *   **Assumption:** The transformer architecture is computationally expensive so, efficiency in model training and evaluation will be essential. The dataset generation and model evaluation steps will be carefully considered to avoid unnecessary usage of compute.
+    *   **Implementation:**
+        *   We will focus on building a lightweight model and experiment with reducing the model size if possible without significant loss in performance.
+        *   We will use the dataset efficiently, avoid duplicate or irrelevant data, and optimize data generation.
+        *   We will use a fixed context length and fixed size for the transformer model, so that the compute requirements are always known and do not vary drastically from model to model.
+
+**Balancing Principles with Goals and Constraints:**
+
+*   **Project Goal:** Replicate the core findings of the paper and demonstrate the key benefits of Algorithm Distillation (AD) for in-context RL.
+*   **Constraints:** Limited access to high-compute infrastructure, time constraints for coding and testing, and the need to balance complexity with a clear understanding of the method.
+
+**Balancing Strategies:**
+
+*   **Interpretability and Performance Trade-Off:** We will strive for a model that balances good performance with the ability to understand its internal workings. We will prioritize models that provide insight rather than marginal gains in performance.
+*   **Robustness and Generalization:** We will give more weight to building robust and generalizable models, even if that comes at the expense of marginal gains in performance on single tasks.
+*   **Ethical Considerations:** Ethical considerations will be a driving force throughout the process, ensuring we are mindful of the potential risks and limitations. We will avoid datasets that have any inherent biases, and will be careful in designing our evaluation setting.
+*   **Efficiency and Performance:** The main goal of the project is understanding and implementing the model. Given the computational resources and time limitations, we will not attempt to optimize parameters beyond what is necessary for the model to learn the base RL behaviours.
+
+**High-Level Plan and Pseudocode**
+
+1.  **Environment Setup:**
+    *   Set up a Python environment with the necessary libraries, such as `PyTorch`, `transformers`, `numpy`.
+
+2.  **Data Generation:**
+    *   Implement the different RL environments (Adversarial Bandit, Dark Room, Dark Key-to-Door, Watermaze) in a flexible and scalable way.
+    *   Implement source RL algorithms (UCB, A3C, DQN) within each of the environments.
+    *   Generate learning histories for all the source RL algorithm runs with the parameters used in the original paper. Store in a way that can be loaded quickly by the next step.
+
+3.  **Model Implementation:**
+    *   Implement the causal transformer model, with all required components, such as embedding layers, attention layers, etc.
+    *   Implement the logic for processing data with the input embedding and output layers.
+    * Implement a forward function that uses the previously provided state-action-reward triplets to calculate a distribution over next action.
+  
+4.  **Training:**
+    *   Implement the training loop for AD.
+    *  Feed training data to the model in batches.
+    *   Calculate negative log likelihood (NLL) loss based on the target actions and the LLM model’s output.
+    *  Backpropagate through the architecture for training the weights.
+   * Track loss, validation performance and any other relevant variables throughout the model’s training process.
+5.  **Evaluation:**
+    *   Evaluate the AD model, by allowing the model to interact with the environment and make decisions based on its context.
+    *   Measure episodic return, and compare AD to the baselines of Expert Distillation, Source Algorithm, and RL2 in each environment.
+
+6.  **Ablation Studies:**
+    *  Evaluate the effects of model size, label smoothing, training with demonstrations and context sizes on performance.
+    *   Perform ablation studies by removing different components of the input, or varying other hyper parameters and observe the effects on performance.
+7.  **Robustness Testing:**
+    *   Test the robustness of the learned in-context RL algorithm to noise in the learning histories, or slightly different parameters.
+
+8.  **Bias Detection & Mitigation:**
+    *   Analyze the generated data for any potential biases and limitations, report how that affects model performance.
+    *  If potential biases are identified, attempt to correct the bias by augmenting the data, or modifying the training process.
+9.  **Ethical Review & Documentation:**
+    * Document all aspects of the work with all associated findings, and include a section on the ethical implications of this method, along with possible mitigations.
+
+**Pseudocode with Formal Notation**
+
+```python
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import torch.nn.functional as F
+
+# --- Data Generation ---
+def generate_learning_histories(env, rl_algorithm, num_tasks):
+  # Run a source RL algorithm for multiple tasks, save action, obs, reward triplets into the dataset.
+  # Input : an environment and an RL algorithm, number of tasks.
+  # Output: D (list of learning histories)
+  ...
+  return dataset
+
+# --- Model Architecture ---
+class CausalTransformer(nn.Module):
+  def __init__(self, input_dim, hidden_dim, output_dim):
+    #Initialize standard transformer layers using torch library and with necessary modifications to be causal.
+    ...
+  def forward(self, input_seq):
+    #Forward pass with input sequence being the learning history. Output probability distribution over actions.
+    ...
+    return action_probabilities
+
+# --- Training ---
+def algorithm_distillation_train(model, dataset, optimizer, epochs):
+  # Training loop for AD by minimizing negative log likelihood
+  for epoch in range(epochs):
+      for history in dataset:
+            # Sample a subsequence from the history
+            truncated_history =  sample_history_subsequence(history)
+        
+            # Predict actions for this subsequence
+            action_probs = model.forward(truncated_history)
+       
+            # Calculate loss
+            loss = F.nll_loss(action_probs, action_targets)
+
+             optimizer.zero_grad()
+             loss.backward()
+             optimizer.step()
+
+def sample_history_subsequence(history, sequence_len):
+  # Subsamples a sequence of length sequence_len from the history.
+  #The history will be of shape: (time_steps, embedding_size * 3)
+  # where each step includes the concatenation of state, action, reward embeddings.
+    ...
+    return sub_history
+
+
+# --- Evaluation ---
+def evaluate(model, env):
+  # Interact with the environment by using model for action selection
+  # Get returns of the model
+  # Return performance metrics such as episodic return, average reward.
+  ...
+  return return_scores
+
+# --- Main Training Loop ---
+if __name__ == '__main__':
+    # --- Hyperparameters ---
+    epochs = 10
+    input_dim = 128 * 3 # observation_dim + reward_dim + action_dim
+    hidden_dim = 256
+    output_dim = ... #action space dim
+    num_tasks = 1000 # Number of single-task RL algos to train
+  
+    # --- Get Data ---
+    dataset = generate_learning_histories(task, source_rl_algorithm, num_tasks)
+    
+    # --- Model, Optimizer ---
+    model = CausalTransformer(input_dim, hidden_dim, output_dim)
+    optimizer = optim.Adam(model.parameters(), lr=0.0001)
+
+    # --- Training ---
+    algorithm_distillation_train(model, dataset, optimizer, epochs)
+
+    # --- Evaluation, Testing Robustness and Generalization ---
+    test_scores = evaluate(model, test_env)
+    print("Test Scores:", test_scores)
+    test_robustness_of_model()
+    ...
+
+    # --- Bias detection and documentation
+    document_all_results()
+   
+```
+
+**Explanation:**
+
+*   The pseudocode provides a high level view of the steps involved in training and testing AD.
+*   It uses formal notations to present the algorithm in a clear and concise way.
+*   It shows the separation between data generation, model implementation, and evaluation steps.
+*   It leaves room for implementation specific details within the functions, while giving a clear idea of the core logic.
+*   It follows the paper closely, and includes all major steps of AD.
+
+**Key Points**
+*  **Formalism:** It uses formal mathematical notation to represent key steps of the algorithm and its components.
+*   **Emphasis on Replicability:** It focuses on showing the important components of the code with the expectation that a reader with a general understanding of machine learning will be able to perform and analyze this model.
+*   **Focus on AD:** It focuses on the key components that are required for replicating Algorithm Distillation.
+
+This detailed plan and pseudocode provides a more comprehensive view of replicating and analyzing the results of the paper, while still emphasizing the importance of all chosen core values and addressing the potential constraints, specifically around the computational resources.
